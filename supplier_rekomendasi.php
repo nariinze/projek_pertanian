@@ -1,91 +1,79 @@
 <?php
 session_start();
-include "koneksi.php"; // Menggunakan koneksi utama ke scm_pertanian
+include "koneksi.php";
 
-if (!isset($_SESSION['role']) || $_SESSION['role'] != 'supplier') {
-    header("Location: login.php");
-    exit;
-}
+// 1. Cek apakah koneksi ada
+if (!$conn) { die("Koneksi gagal: " . mysqli_connect_error()); }
 
-// --- LOGIKA SIMPAN SARAN ---
+$pesan = "";
+
+// 2. Proses saat tombol ditekan
 if (isset($_POST['kirim_saran'])) {
-    $judul = mysqli_real_escape_string($conn, $_POST['judul']);
-    $isi   = mysqli_real_escape_string($conn, $_POST['isi_saran']);
-    $tgl   = date('Y-m-d');
+    $id_petani = mysqli_real_escape_string($conn, $_POST['id_petani']);
+    $judul     = mysqli_real_escape_string($conn, $_POST['judul']);
+    $isi_saran = mysqli_real_escape_string($conn, $_POST['isi_saran']);
+    $tanggal   = date('Y-m-d');
 
-    // Query masuk ke tabel saran_pemupukan
-    $query = "INSERT INTO saran_pemupukan (judul, isi, tanggal) VALUES ('$judul', '$isi', '$tgl')";
-    
+    // Query sesuai screenshot database kamu
+    $query = "INSERT INTO saran_pemupukan (id_petani, judul, isi_saran, tanggal, status) 
+              VALUES ('$id_petani', '$judul', '$isi_saran', '$tanggal', 'baru')";
+
     if (mysqli_query($conn, $query)) {
-        $msg = "Saran pemupukan berhasil dipublikasikan!";
+        // Kita tidak pakai redirect otomatis dulu untuk ngetes
+        $pesan = "<div style='background:#d4edda; color:#155724; padding:15px; border-radius:5px; margin-bottom:20px;'>
+                    <b>Sukses!</b> Saran sudah masuk ke database.<br>
+                    <a href='dashboard_petani.php'>Klik di sini untuk kembali</a> (Atau ganti link ini ke dashboard supplier kamu)
+                  </div>";
+    } else {
+        $pesan = "<div style='background:#f8d7da; color:#721c24; padding:15px; border-radius:5px; margin-bottom:20px;'>
+                    <b>Gagal:</b> " . mysqli_error($conn) . "
+                  </div>";
     }
-}
-
-// --- LOGIKA HAPUS SARAN ---
-if (isset($_GET['hapus'])) {
-    $id = $_GET['hapus'];
-    mysqli_query($conn, "DELETE FROM saran_pemupukan WHERE id = '$id'");
-    header("Location: supplier_rekomendasi.php");
 }
 ?>
 
 <!DOCTYPE html>
-<html lang="id">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Saran Pemupukan | Supplier</title>
-    <link href="https://api.fontshare.com/v2/css?f[]=satoshi@700,500,400&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <title>Kirim Rekomendasi</title>
     <style>
-        :root { --emerald: #10b981; --dark: #064e3b; }
-        body { font-family: 'Satoshi', sans-serif; background: #f8fafc; margin: 0; display: flex; }
-        .sidebar { width: 90px; background: white; height: 100vh; padding: 30px 0; border-right: 1px solid #e2e8f0; position: fixed; display: flex; flex-direction: column; align-items: center; }
-        .sidebar a { color: #64748b; font-size: 20px; margin-bottom: 30px; text-decoration: none; }
-        .sidebar a.active { color: var(--emerald); }
-        .main { margin-left: 90px; padding: 50px; width: 100%; }
-        .card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
-        input, textarea { width: 100%; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 20px; }
-        .btn { background: var(--dark); color: white; border: none; padding: 15px 30px; border-radius: 12px; font-weight: 700; cursor: pointer; width: 100%; }
-        .saran-item { background: white; padding: 20px; border-radius: 15px; border-left: 5px solid var(--emerald); margin-top: 15px; display: flex; justify-content: space-between; align-items: center; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f7f6; padding: 40px; }
+        .container { background: white; padding: 30px; border-radius: 15px; max-width: 500px; margin: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h2 { color: #2c3e50; margin-bottom: 20px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #34495e; }
+        input, textarea, select { width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #dce4ec; border-radius: 8px; box-sizing: border-box; }
+        .btn { width: 100%; padding: 15px; background: #27ae60; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; }
+        .btn:hover { background: #219150; }
     </style>
 </head>
 <body>
 
-    <nav class="sidebar">
-        <a href="dashboard_supplier.php"><i class="fa-solid fa-house"></i></a>
-        <a href="supplier_pesanan.php"><i class="fa-solid fa-box-open"></i></a>
-        <a href="supplier_rekomendasi.php" class="active"><i class="fa-solid fa-vial-circle-check"></i></a>
-        <a href="logout.php" style="margin-top: auto; color: #ef4444;"><i class="fa-solid fa-power-off"></i></a>
-    </nav>
+<div class="container">
+    <h2>Kirim Saran Ahli</h2>
+    
+    <?= $pesan; ?>
 
-    <div class="main">
-        <h1>Saran <span style="color: var(--emerald);">Pemupukan</span></h1>
-        <p style="color: #64748b;">Gunakan tabel <b>saran_pemupukan</b> di database scm_pertanian.</p>
+    <form action="" method="POST">
+        <label>Pilih Petani Penerima:</label>
+        <select name="id_petani" required>
+            <option value="">-- Pilih Petani --</option>
+            <?php
+            $res = mysqli_query($conn, "SELECT id, username FROM users WHERE role='petani'");
+            while($p = mysqli_fetch_assoc($res)) {
+                echo "<option value='".$p['id']."'>".$p['username']."</option>";
+            }
+            ?>
+        </select>
 
-        <?php if(isset($msg)) echo "<p style='color:green;'>$msg</p>"; ?>
+        <label>Judul Rekomendasi:</label>
+        <input type="text" name="judul" placeholder="Contoh: Dosis Pupuk Padi" required>
 
-        <div class="card">
-            <form method="POST">
-                <input type="text" name="judul" placeholder="Judul Rekomendasi" required>
-                <textarea name="isi_saran" rows="5" placeholder="Isi Saran..." required></textarea>
-                <button type="submit" name="kirim_saran" class="btn">Kirim Saran</button>
-            </form>
-        </div>
+        <label>Instruksi / Isi Saran:</label>
+        <textarea name="isi_saran" rows="5" placeholder="Tulis instruksi lengkap di sini..." required></textarea>
 
-        <h3 style="margin-top: 40px;">Riwayat Saran</h3>
-        <?php
-        $res = mysqli_query($conn, "SELECT * FROM saran_pemupukan ORDER BY id DESC");
-        while($row = mysqli_fetch_assoc($res)):
-        ?>
-            <div class="saran-item">
-                <div>
-                    <strong><?= $row['judul'] ?></strong><br>
-                    <small><?= $row['tanggal'] ?></small>
-                </div>
-                <a href="supplier_rekomendasi.php?hapus=<?= $row['id'] ?>" style="color:red;"><i class="fa-solid fa-trash"></i></a>
-            </div>
-        <?php endwhile; ?>
-    </div>
+        <button type="submit" name="kirim_saran" class="btn">Kirim Sekarang</button>
+    </form>
+</div>
 
 </body>
 </html>
