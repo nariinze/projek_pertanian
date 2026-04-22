@@ -5,29 +5,32 @@ include "koneksi.php";
 $username = $_POST['username'];
 $password = $_POST['password'];
 
-$query = mysqli_query($conn, "SELECT * FROM users WHERE username='$username' AND password='$password'");
+$data = mysqli_query($conn,"SELECT * FROM users WHERE username='$username' AND password='$password'");
+$cek = mysqli_num_rows($data);
 
-if(mysqli_num_rows($query) > 0){
+if($cek > 0){
+    $user = mysqli_fetch_assoc($data);
 
-    $data = mysqli_fetch_assoc($query);
+    // INI WAJIB DITAMBAH agar id_petani bisa terbaca di supplier
+    $_SESSION['id'] = $user['id']; 
+    $_SESSION['username'] = $user['username'];
+    $_SESSION['role'] = $user['role'];
 
-    $_SESSION['id'] = $data['id'];
-    $_SESSION['username'] = $data['username'];
-    $_SESSION['role'] = trim($data['role']);
-
-    echo "Login berhasil <br>";
-    echo "Role: ".$_SESSION['role']."<br>";
-
-    if($_SESSION['role'] == "petani"){
+    if($user['role']=="petani"){
         header("Location: dashboard_petani.php");
-        exit;
     }
-    elseif($_SESSION['role'] == "admin"){
-        header("Location: dashboard_admin.php");
-        exit;
+    elseif($user['role']=="supplier"){
+        header("Location: dashboard_supplier.php");
     }
+    elseif($user['role'] == "distributor"){
+        header("Location: dashboard_distributor.php");
+    }
+     elseif($user['role'] == "buruh"){
+        header("Location: dashboard_buruh.php");
+    }
+    exit;
 
 }else{
-    echo "Login gagal";
+    echo "<script>alert('Login Gagal!'); window.location='login.php';</script>";
 }
 ?>
