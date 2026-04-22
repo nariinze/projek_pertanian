@@ -1,10 +1,12 @@
 <?php
 session_start();
+
 if(isset($_SESSION['role'])){
     if($_SESSION['role']=="petani"){
         header("Location: dashboard_petani.php");
-    }else{
-        header("Location: dashboard_admin.php");
+    } 
+    else if($_SESSION['role']=="supplier"){
+        header("Location: dashboard_supplier.php");
     }
     exit;
 }
