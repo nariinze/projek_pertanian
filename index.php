@@ -1,14 +1,24 @@
 <?php
 session_start();
 
+// Pengecekan otomatis: Jika user SUDAH login, langsung lempar ke dashboard masing-masing
 if(isset($_SESSION['role'])){
-    if($_SESSION['role']=="petani"){
+    if($_SESSION['role'] == "petani"){
         header("Location: dashboard_petani.php");
+        exit;
     } 
-    else if($_SESSION['role']=="supplier"){
+    else if($_SESSION['role'] == "supplier"){
         header("Location: dashboard_supplier.php");
+        exit;
     }
-    exit;
+    else if($_SESSION['role'] == "distributor"){
+        header("Location: dashboard_distributor.php");
+        exit;
+    }
+    else if($_SESSION['role'] == "buruh"){
+        header("Location: dashboarrd_buruh.php"); // atau dashboard buruh kamu
+        exit;
+    }
 }
 ?>
 <!DOCTYPE html>

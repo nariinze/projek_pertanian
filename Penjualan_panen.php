@@ -17,7 +17,6 @@ exit;
 
 <style>
 
-/* (CSS kamu ga aku ubah, tetap sama) */
 
 *{
 margin:0;

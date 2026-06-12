@@ -1,7 +1,7 @@
 <?php
 session_start();
 if (!isset($_SESSION['role']) || $_SESSION['role'] != 'petani') {
-    header("Location: login.php");
+    header("Location: index.php");
     exit;
 }
 $username = $_SESSION['username'];
@@ -44,19 +44,60 @@ $notif_buruh = $res_panen['total'] ?? 0;
         *{ margin:0; padding:0; box-sizing:border-box; font-family:'Poppins', sans-serif; }
         body{ background:#f8faf9; color:#333; overflow-x:hidden; scroll-behavior: smooth; }
 
+        /* KODE NAVBAR ASLI MILIKMU */
         .navbar{ position:fixed; width:100%; top:0; padding:20px 8%; display:flex; justify-content:space-between; align-items:center; transition:0.3s; z-index:1000; }
         .navbar.scrolled{ background:white; box-shadow:0 8px 25px rgba(0,0,0,0.05); }
         .logo{ font-size:24px; font-weight:800; color:white; }
         .navbar.scrolled .logo{ color:#0F5C4C; }
-        .nav-links{ display:flex; gap:30px; align-items: center; }
-        .nav-links a{ text-decoration:none; color:white; font-weight:500; transition:0.3s; position: relative; }
+        .nav-links{ display:flex; gap:25px; align-items: center; }
+        
+        .nav-links a{ text-decoration:none; color:white; font-weight:500; font-size:14px; transition:0.3s; position: relative; padding: 4px 0; display: flex; align-items: center; gap: 8px; }
         .navbar.scrolled .nav-links a{ color:#333; }
         
-        /* Notif Kecil Saran Ahli di Navbar */
+        .nav-links a::after { content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 2px; background: #F4C430; transition: width 0.3s ease; }
+        .navbar.scrolled .nav-links a::after { background: #0F5C4C; }
+        .nav-links a:hover::after { width: 100%; }
+        .nav-links a:hover { opacity: 0.9; }
+
+        /* Widget Jam Digital */
+        .nav-clock { color: white; font-size: 13px; font-weight: 600; background: rgba(255,255,255,0.15); padding: 6px 15px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; gap: 8px; }
+        .navbar.scrolled .nav-clock { color: #0F5C4C; background: #f0f4f3; border-color: transparent; }
+        
         .badge-nav { background: #FF4D4D; color: white; padding: 2px 7px; border-radius: 50%; font-size: 10px; position: absolute; top: -10px; right: -12px; border: 2px solid #0F5C4C; }
         .navbar.scrolled .badge-nav { border-color: white; }
 
-        .btn{ background:#F4C430; padding:10px 20px; border-radius:30px; font-weight:600; color:black; text-decoration:none; }
+        /* PERBAIKAN TOMBOL LOGOUT SEPADAN (DIPISAH DARI HOVER LINK TEXT NAV-LINKS) */
+        .nav-links a.btn-logout { 
+            background: #F4C430 !important; 
+            padding: 10px 24px !important; 
+            border-radius: 30px !important; 
+            font-weight: 600 !important; 
+            color: #000000 !important; /* Memaksa warna teks tetap hitam pekat agar kontras */
+            text-decoration: none !important; 
+            transition: all 0.3s ease !important; 
+            display: flex !important; 
+            align-items: center !important; 
+            gap: 8px !important; 
+            box-shadow: 0 4px 10px rgba(244, 196, 48, 0.2);
+        }
+        .nav-links a.btn-logout::after { display: none !important; } /* Hilangkan garis underline mengalir khusus tombol */
+        
+        .nav-links a.btn-logout:hover { 
+            background: #000000 !important; 
+            color: #F4C430 !important; 
+            transform: translateY(-2px); 
+            opacity: 1 !important;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2); 
+        }
+
+        /* Saat di-scroll, tombol logout mempertahankan teks hitamnya */
+        .navbar.scrolled .nav-links a.btn-logout {
+            color: #000000 !important;
+        }
+        .navbar.scrolled .nav-links a.btn-logout:hover {
+            background: #0F5C4C !important;
+            color: #ffffff !important;
+        }
 
         .hero{ height:100vh; background:linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url("petani.jpg"); background-size:cover; background-position:center; display:flex; align-items:center; padding:0 8%; position:relative; }
         .hero-content{ max-width:700px; color:white; animation:fadeUp 1.2s ease; }
@@ -71,9 +112,6 @@ $notif_buruh = $res_panen['total'] ?? 0;
         .section-title{ text-align:center; margin-bottom:60px; }
         .section-title h2{ font-size:40px; color:#0F5C4C; }
 
-        /* Notifikasi Banner Buruh */
-        .notif-banner { background: #022c22; color: white; padding: 25px; border-radius: 20px; margin-bottom: 40px; display: flex; align-items: center; gap: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); animation: pulse 2s infinite; }
-
         .cards{ display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:40px; }
         .card-link{ text-decoration:none; color:inherit; }
         .card{ background:white; border-radius:25px; overflow:hidden; box-shadow:0 15px 40px rgba(0,0,0,0.05); transition:0.4s; position: relative; }
@@ -81,49 +119,52 @@ $notif_buruh = $res_panen['total'] ?? 0;
         .card img{ width:100%; height:240px; object-fit:cover; }
         .card-content{ padding:30px; }
 
-        /* Badge Laporan Buruh di Kartu */
-        .badge-card { position: absolute; top: 15px; right: 15px; background: #ef4444; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; border: 3px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-
-        .history-item { background: #fff; padding: 20px; border-radius: 15px; display: flex; align-items: center; gap: 20px; margin-bottom: 15px; border: 1px solid #eee; transition: 0.3s; border-left: 5px solid #eee; }
-        .icon-box { background: #0F5C4C; color: white; padding: 15px; border-radius: 12px; display: flex; align-items: center; justify-content: center; width: 55px; height: 55px; }
-
-        footer{ background:#0F5C4C; color:white; text-align:center; padding:40px; }
-
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
         @keyframes fadeUp{ from{ opacity:0; transform:translateY(40px); } to{ opacity:1; transform:translateY(0); } }
 
         .badge-card { 
-    position: absolute; 
-    top: 15px; 
-    right: 15px; 
-    background: #ef4444; 
-    color: white; 
-    width: 35px; 
-    height: 35px; 
-    border-radius: 50%; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    font-weight: 800; 
-    border: 3px solid white; 
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1); 
-    z-index: 10;
-}
+            position: absolute; top: 15px; right: 15px; background: #ef4444; color: white; 
+            width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; 
+            justify-content: center; font-weight: 800; border: 3px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.1); z-index: 10;
+        }
+
+        /* PERBAIKAN WARNA KONTRAS FOOTER BAGIAN BAWAH */
+        footer { 
+            background: #0F5C4C !important; 
+            color: #ffffff !important; 
+            text-align: center; 
+            padding: 40px; 
+            margin-top: 100px;
+        }
+        footer .logo-footer {
+            font-size: 20px;
+            font-weight: 800;
+            color: #ffffff !important;
+        }
+        footer p {
+            color: rgba(255, 255, 255, 0.7) !important;
+        }
     </style>
 </head>
 <body>
 
 <div class="navbar" id="navbar">
-    <div class="logo">🌾 SCM Agro</div>
+    <div class="logo"><i class="fa-solid fa-seedling"></i> SCM Agro</div>
     <div class="nav-links">
-        <a href="#">Dashboard</a>
-        <a href="#riwayat">Riwayat Transaksi</a>
-        <a href="petani_lihat_saran.php">Saran Ahli
+        <a href="dashboard_petani.php"><i class="fa-solid fa-house" style="font-size: 12px;"></i> Dashboard</a>
+        <a href="riwayat_transaksi_petani.php"><i class="fa-solid fa-receipt" style="font-size: 12px;"></i> Riwayat Transaksi</a>
+        <a href="logistik_petani.php"><i class="fa-solid fa-truck" style="font-size: 12px;"></i> Logistik Pengiriman</a>
+        <a href="petani_lihat_saran.php"><i class="fa-solid fa-user-doctor" style="font-size: 12px;"></i> Saran Ahli
             <?php if($notif_saran > 0): ?>
                 <span class="badge-nav"><?= $notif_saran ?></span>
             <?php endif; ?>
         </a>
-        <a href="logout.php" class="btn">Logout</a>
+        
+        <div class="nav-clock">
+            <i class="fa-regular fa-clock"></i> <span id="liveClock">00:00:00</span>
+        </div>
+
+        <!-- Class diubah menjadi btn-logout agar terpisah dari pengaturan tautan standar -->
+        <a href="logout.php" class="btn-logout"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</a>
     </div>
 </div>
 
@@ -151,7 +192,6 @@ $notif_buruh = $res_panen['total'] ?? 0;
 </section>
 
 <section class="section" id="layanan">
-   
     <div class="section-title">
         <h2>Layanan Digital Pertanian</h2>
     </div>
@@ -178,69 +218,24 @@ $notif_buruh = $res_panen['total'] ?? 0;
         </a>
 
         <a href="petani_laporan_buruh.php" class="card-link">
-        <div class="card">
-            <?php if($notif_buruh > 0): ?>
-                <div class="badge-card"><?= $notif_buruh ?></div>
-            <?php endif; ?>
-            <img src="transaksi&distribusi.png" alt="Buruh">
-            <div class="card-content">
-                <h3>Laporan Lahan (Buruh)</h3>
-                <p>Pantau dokumentasi foto dan berat hasil panen dari buruh lapangan.</p>
+            <div class="card">
+                <?php if($notif_buruh > 0): ?>
+                    <div class="badge-card"><?= $notif_buruh ?></div>
+                <?php endif; ?>
+                <img src="transaksi&distribusi.png" alt="Buruh">
+                <div class="card-content">
+                    <h3>Laporan Lahan (Buruh)</h3>
+                    <p>Pantau dokumentasi foto dan berat hasil panen dari buruh lapangan.</p>
+                </div>
             </div>
-        </div>
-    </a>
+        </a>
     </div>
 </section>
 
-<section class="section" id="riwayat" style="background: white; padding-top: 50px;">
-    <div class="section-title">
-        <h2>Status Pengiriman Bibit (Supplier)</h2>
-    </div>
-    <div style="max-width: 900px; margin: 0 auto; margin-bottom: 80px;">
-        <?php
-        $q_riwayat_bibit = mysqli_query($conn, "SELECT pb.*, p.nama_produk FROM pesanan_bibit pb 
-                                                JOIN produk p ON pb.id_produk = p.id_produk 
-                                                WHERE pb.id_petani = '$id_user' ORDER BY pb.id_pesanan DESC");
-        while($b = mysqli_fetch_assoc($q_riwayat_bibit)) {
-            $st = strtolower($b['status']);
-            $warna = ($st == 'selesai') ? '#10b981' : (($st == 'diproses') ? '#3b82f6' : '#f59e0b');
-        ?>
-            <div class="history-item" style="border-left: 5px solid <?= $warna ?>;">
-                <div class="icon-box" style="background: <?= $warna ?>;"><i class="fa-solid fa-seedling fa-xl"></i></div>
-                <div style="flex-grow: 1;">
-                    <h4 style="margin: 0;"><?= $b['nama_produk'] ?></h4>
-                    <p style="font-size: 12px; color: #777;">Jumlah: <?= $b['jumlah'] ?> kg | #AGRO-<?= $b['id_pesanan'] ?></p>
-                </div>
-                <div style="text-align: right;"><b style="color: <?= $warna ?>;"><?= strtoupper($b['status']) ?></b></div>
-            </div>
-        <?php } ?>
-    </div>
-
-    <div class="section-title">
-        <h2>Hasil Penjualan Panen (Distributor)</h2>
-    </div>
-    <div style="max-width: 900px; margin: 0 auto;">
-        <?php
-        $q_riwayat_panen = mysqli_query($conn, "SELECT * FROM pengajuan_panen WHERE id_petani = '$id_user' ORDER BY id_panen DESC");
-        while($p = mysqli_fetch_assoc($q_riwayat_panen)) {
-            $st_p = strtolower($p['status']);
-            $warna_p = ($st_p == 'disetujui') ? '#10b981' : (($st_p == 'ditolak') ? '#ef4444' : '#f59e0b');
-        ?>
-            <div class="history-item" style="border-left: 5px solid <?= $warna_p ?>;">
-                <div class="icon-box" style="background: <?= $warna_p ?>;"><i class="fa-solid fa-check-double fa-xl"></i></div>
-                <div style="flex-grow: 1;">
-                    <h4 style="margin: 0;"><?= $p['nama_hasil'] ?></h4>
-                    <p style="font-size: 12px; color: #777;">Volume: <?= $p['jumlah'] ?> kg</p>
-                </div>
-                <div style="text-align: right;"><b style="color: <?= $warna_p ?>;"><?= strtoupper($p['status']) ?></b></div>
-            </div>
-        <?php } ?>
-    </div>
-</section>
-
+<!-- FOOTER SEKARANG AMAN DENGAN BACKGROUND HIJAU TUA EMAS -->
 <footer>
-    <div class="logo">🌾 SCM Agro</div>
-    <p style="margin-top: 10px; opacity: 0.7; font-size: 13px;">Smart Farming System - Digital Supply Chain 2026</p>
+    <div class="logo-footer">🌾 SCM Agro</div>
+    <p style="margin-top: 10px; font-size: 13px;">Smart Farming System - Digital Supply Chain 2026</p>
 </footer>
 
 <script>
@@ -248,6 +243,16 @@ window.addEventListener("scroll", function(){
     var navbar = document.getElementById("navbar");
     if(navbar) navbar.classList.toggle("scrolled", window.scrollY > 50);
 });
+
+function updateClock() {
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    document.getElementById('liveClock').textContent = `${hours}:${minutes}:${seconds}`;
+}
+setInterval(updateClock, 1000);
+updateClock();
 </script>
 
 </body>

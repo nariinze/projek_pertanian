@@ -2,13 +2,15 @@
 session_start();
 include "koneksi.php";
 
+// Proteksi halaman, pastikan hanya distributor yang bisa masuk
 if (!isset($_SESSION['role']) || $_SESSION['role'] != 'distributor') {
-    header("Location: index.php");
+    header("Location: login.php");
     exit;
 }
 
 $id_distributor = $_SESSION['id'];
 
+// Ambil semua data transaksi pembelian dari database
 $query_transaksi = mysqli_query($conn, "
     SELECT tp.*, p.nama_hasil, p.jumlah, u.nama as nama_petani 
     FROM transaksi_pembelian tp
@@ -39,14 +41,20 @@ $query_transaksi = mysqli_query($conn, "
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Urbanist', sans-serif; }
         body { background: var(--bg); padding: 50px 80px; min-height: 100vh; }
 
+        /* Header Style */
         .header { margin-bottom: 50px; display: flex; justify-content: space-between; align-items: center; }
         .header h1 { font-size: 38px; font-weight: 900; color: var(--primary); letter-spacing: -1px; }
         .btn-back { text-decoration: none; color: var(--primary); font-weight: 800; font-size: 13px; display: flex; align-items: center; gap: 8px; }
         .btn-back:hover { color: var(--accent); }
 
+        /* Table Card Container */
         .table-container {
-            background: var(--white); border-radius: 30px; padding: 35px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.02); overflow-x: auto;
+            background: var(--white);
+            border-radius: 30px;
+            padding: 35px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.02);
+            border: 1px solid rgba(0,0,0,0.02);
+            overflow-x: auto;
         }
 
         table { width: 100%; border-collapse: collapse; text-align: left; }
@@ -54,16 +62,35 @@ $query_transaksi = mysqli_query($conn, "
         td { padding: 25px; border-bottom: 1px solid #f7fafc; font-size: 15px; color: var(--dark); vertical-align: middle; }
         tr:hover td { background: #fcfdfd; }
 
-        .badge-status { display: inline-block; padding: 8px 18px; border-radius: 50px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+        /* Badge Status Logistics */
+        .badge-status {
+            display: inline-block;
+            padding: 8px 18px;
+            border-radius: 50px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
         .status-menunggu { background: #FFF5F5; color: #FF4D4D; }
         .status-proses { background: #FFF9E6; color: #FFB800; }
         .status-kirim { background: #EBF8FF; color: #3182CE; }
         .status-selesai { background: var(--mint); color: var(--primary); }
 
+        /* Action Button */
         .btn-update {
-            background: var(--primary); color: var(--white); border: none; padding: 10px 20px;
-            border-radius: 12px; font-weight: 700; font-size: 12px; cursor: pointer;
-            display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(27, 67, 50, 0.1);
+            background: var(--primary);
+            color: var(--white);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(27, 67, 50, 0.1);
         }
         .btn-update:hover { background: var(--accent); color: var(--primary); transform: translateY(-2px); }
         .disabled-btn { background: #e2e8f0; color: #a0aec0; cursor: not-allowed; box-shadow: none; }
@@ -78,7 +105,7 @@ $query_transaksi = mysqli_query($conn, "
             <h1 style="margin-top: 10px;">Transaction <span style="color: var(--accent);">Logistics.</span></h1>
         </div>
         <div style="text-align: right;">
-            <p style="font-size: 12px; font-weight: 800; color: #999; letter-spacing: 1px;"></p>
+            <p style="font-size: 12px; font-weight: 800; color: #999; letter-spacing: 1px;">SPRINT 10 // FINALIZE</p>
         </div>
     </div>
 

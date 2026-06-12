@@ -3,7 +3,7 @@ session_start();
 include "koneksi.php"; // Pastikan isinya: $conn = mysqli_connect("localhost", "root", "", "scm_pertanian2");
 
 if (!isset($_SESSION['role']) || $_SESSION['role'] != 'buruh') {
-    header("Location: login.php");
+    header("Location: index.php");
     exit;
 }
 
